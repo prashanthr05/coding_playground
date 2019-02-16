@@ -4,7 +4,7 @@ find_package(YARP 3.1.100 REQUIRED COMPONENTS OS sig cv)
 find_package(OpenCV REQUIRED)
 
 project(VisualOdometry  VERSION 0.1.0.0
-                        LANGUAGES C CXX)
+                        LANGUAGES CXX)
 
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
 
