@@ -2,7 +2,7 @@ clc
 clear
 close all
 %% options
-plotCpp = false;
+plotCpp = true;
 %% load Cpp
 fileName = 'se23Out.txt';
 fileID = fopen(fileName, 'r');
@@ -211,7 +211,7 @@ end
 
 figure
 for plotidx = 1:3
-    subplot(3, 3, plotidx)
+    subplot(3, 3, 3*plotidx-2)
     plot(time, simPos(plotidx, :), '--', 'LineWidth', 2)
     hold on
     plot(time, unFiltPos(plotidx, :), '-x', 'LineWidth', 2)
@@ -228,8 +228,10 @@ for plotidx = 1:3
     else
         legend('sim-matlab', 'unfilt-matlab', 'est-matlab')
     end
+    xlabel('Time(s)', 'FontSize', 24)
+    ylabel('Position in m', 'FontSize', 24)
     
-    subplot(3, 3, plotidx+3)
+    subplot(3, 3, 3*plotidx-1)
     plot(time, simRPY(plotidx, :), '--', 'LineWidth', 2)
     hold on
     plot(time, unFiltRPY(plotidx, :), '-x', 'LineWidth', 2)
@@ -246,8 +248,10 @@ for plotidx = 1:3
     else
         legend('sim-matlab', 'unfilt-matlab', 'est-matlab')
     end
+    xlabel('Time(s)', 'FontSize', 24)
+    ylabel('RPY in radians', 'FontSize', 24)
     
-    subplot(3, 3, plotidx+6)
+    subplot(3, 3, 3*plotidx)
     plot(time, simVel(plotidx, :), '--', 'LineWidth', 2)
     hold on
     plot(time, unFiltVel(plotidx, :), '-x', 'LineWidth', 2)
@@ -264,4 +268,6 @@ for plotidx = 1:3
     else
         legend('sim-matlab', 'unfilt-matlab', 'est-matlab')
     end
+    xlabel('Time(s)', 'FontSize', 24)
+    ylabel('LinVel m/s', 'FontSize', 24)
 end

@@ -167,7 +167,7 @@ legend('Initial Position', 'B0', 'B1', 'B2', 'B3', 'B4', 'sim-matlab', 'sim-cpp'
 
 figure
 for plotidx = 1:3
-    subplot(3, 2, plotidx)
+    subplot(3, 2, 2*plotidx-1)
     plot(time, simPos(plotidx, :), '--', 'LineWidth', 2)
     hold on
     plot(timeCpp, simPosCpp(plotidx, :), ':', 'LineWidth', 2)
@@ -180,8 +180,10 @@ for plotidx = 1:3
     hold on
     plot(time, estPosCpp(plotidx, :), 'o', 'LineWidth', 2)
     legend('sim-matlab', 'sim-cpp', 'unfilt-matlab', 'unfilt-cpp','est-matlab', 'est-cpp')
+    xlabel('Time(s)', 'FontSize', 24)
+    ylabel('Position in m', 'FontSize', 24)
     
-    subplot(3, 2, plotidx+3)
+    subplot(3, 2, 2*plotidx)
     plot(time, simRPY(plotidx, :), '--', 'LineWidth', 2)
     hold on
     plot(timeCpp, simRPYCpp(plotidx, :), ':', 'LineWidth', 2)
@@ -194,5 +196,6 @@ for plotidx = 1:3
     hold on
     plot(time, estRPYCpp(plotidx, :), 'o', 'LineWidth', 2)
     legend('sim-matlab', 'sim-cpp', 'unfilt-matlab', 'unfilt-cpp','est-matlab', 'est-cpp')
-    
+    xlabel('Time(s)', 'FontSize', 24)
+    ylabel('RPY in radians', 'FontSize', 24)
 end
