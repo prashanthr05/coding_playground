@@ -1,8 +1,9 @@
 clc
 clear
 close all
-%% options
+
 plotCpp = true;
+
 %% load Cpp
 fileName = 'se23Out.txt';
 fileID = fopen(fileName, 'r');
@@ -12,7 +13,6 @@ for fi = 1:27
 end
 formatString = [formatString '%f'];
 
-% formatString = '%f %f %f %f %f %f %f %f %f %f';
 sizeA = [28 Inf];
 outCell = fscanf(fileID,formatString, sizeA);
 fclose(fileID);
@@ -42,7 +42,7 @@ landmarks = [b0 b1 b2 b3 b4];
 
 %% constants
 g = [0; 0; -9.80665]; % acceleration due to gravity in inertial frame
-dt = 0.1;
+dt = 0.01;
 
 
 %% initial conditions
@@ -106,16 +106,22 @@ while (t < tEnd)
     [RkEst, pkEst, vkEst] = LieGroups.SE_2_3.extractSE23(Xest);
     acckEst = prevAlpha + (RkEst'*g) + uNoise(7:9);    
     omegakEst = prevOmega + uNoise(4:6);
+    
     uEst = [RkEst'*vkEst*dt + 0.5*dt*dt*acckEst;
             omegakEst*dt;
             acckEst*dt];
-
     
+    accLinCross = LieGroups.SO3.hat(RkEst'*vkEst*dt + 0.5*dt*dt*acckEst);
+    gCross = LieGroups.SO3.hat(RkEst'*g*dt);
     % first we move
+    slantFk = [zeros(3)  accLinCross eye(3)*dt;
+               zeros(3)     zeros(3)  zeros(3);
+               zeros(3)      gCross   zeros(3)];
     [uEstExpHat, J_x, J_u] = LieGroups.SE_2_3.exphat(uEst);
     Xest = LieGroups.SE_2_3.compose(Xest, uEstExpHat);
     
-    P = (J_x * P *J_x') + (J_u * U * J_u');
+    Fk = J_x + J_u*slantFk;
+    P = (Fk * P * Fk') + (J_u * U * J_u');
     
     %     %correct using measurement of each link
     for lidx = 1:length(landmarks)
@@ -137,7 +143,7 @@ while (t < tEnd)
         Xest = LieGroups.SE_2_3.compose(Xest, correction);
         P = P - K*Z*K';
     end
-    
+    [RkEst, pkEst, vkEst] = LieGroups.SE_2_3.extractSE23(Xest);
     
     %% Unfiltered
     [RkUnfilt, pkUnfilt, vkUnfilt] = LieGroups.SE_2_3.extractSE23(Xunfilt);
@@ -221,9 +227,9 @@ for plotidx = 1:3
     if plotCpp
         plot(timeCpp, simPosCpp(plotidx, :), ':', 'LineWidth', 2)
         hold on
-        plot(time, unFiltPosCpp(plotidx, :), '-x', 'LineWidth', 2)
+        plot(timeCpp, unFiltPosCpp(plotidx, :), '-x', 'LineWidth', 2)
         hold on
-        plot(time, estPosCpp(plotidx, :), 'o', 'LineWidth', 2)
+        plot(timeCpp, estPosCpp(plotidx, :), 'o', 'LineWidth', 2)
         legend('sim-matlab', 'unfilt-matlab', 'est-matlab','sim-cpp', 'unfilt-cpp', 'est-cpp')
     else
         legend('sim-matlab', 'unfilt-matlab', 'est-matlab')
@@ -241,9 +247,9 @@ for plotidx = 1:3
     if plotCpp
         plot(timeCpp, simRPYCpp(plotidx, :), ':', 'LineWidth', 2)
         hold on
-        plot(time, unFiltRPYCpp(plotidx, :), '-x', 'LineWidth', 2)
+        plot(timeCpp, unFiltRPYCpp(plotidx, :), '-x', 'LineWidth', 2)
         hold on
-        plot(time, estRPYCpp(plotidx, :), 'o', 'LineWidth', 2)
+        plot(timeCpp, estRPYCpp(plotidx, :), 'o', 'LineWidth', 2)
         legend('sim-matlab', 'unfilt-matlab', 'est-matlab','sim-cpp', 'unfilt-cpp', 'est-cpp')
     else
         legend('sim-matlab', 'unfilt-matlab', 'est-matlab')
@@ -261,9 +267,9 @@ for plotidx = 1:3
     if plotCpp
         plot(timeCpp, simVelCpp(plotidx, :), ':', 'LineWidth', 2)
         hold on
-        plot(time, unFiltVelCpp(plotidx, :), '-x', 'LineWidth', 2)
+        plot(timeCpp, unFiltVelCpp(plotidx, :), '-x', 'LineWidth', 2)
         hold on
-        plot(time, estVelCpp(plotidx, :), 'o', 'LineWidth', 2)
+        plot(timeCpp, estVelCpp(plotidx, :), 'o', 'LineWidth', 2)
         legend('sim-matlab', 'unfilt-matlab', 'est-matlab','sim-cpp', 'unfilt-cpp', 'est-cpp')
     else
         legend('sim-matlab', 'unfilt-matlab', 'est-matlab')
